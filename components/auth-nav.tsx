@@ -77,9 +77,9 @@ export function AuthNav() {
   }
 
   return (
-    <Link href="/auth/login">
+    <Link href="/auth/sign-up">
       <Button variant="default" size="sm">
-        Sign In
+        Sign Up
       </Button>
     </Link>
   )
