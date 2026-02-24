@@ -2,7 +2,6 @@ import { createClient } from '@/lib/supabase/server'
 import { DailySale } from '@/lib/types'
 import { NextRequest, NextResponse } from 'next/server'
 import Decimal from 'decimal.js'
-import { getDateStringDaysAgo, getTodayDateString } from '@/lib/date-utils'
 
 /**
  * GET /api/sales?page=1&limit=10&product_id=xxx&from_date=2024-01-01T00:00:00Z&to_date=2024-12-31T23:59:59Z
@@ -133,12 +132,12 @@ export async function POST(request: NextRequest) {
   }
 
   // Calculate financials using Decimal for precision
-  const boxesDecimal = new Decimal(body.boxes_sold)
-  const sellingPriceDecimal = new Decimal(body.selling_price_per_box)
-  const costDecimal = new Decimal(batch.cost_per_box)
+  // const boxesDecimal = new Decimal(body.boxes_sold)
+  // const sellingPriceDecimal = new Decimal(body.selling_price_per_box)
+  // const costDecimal = new Decimal(batch.cost_per_box)
 
-  const totalRevenue = boxesDecimal.times(sellingPriceDecimal).toFixed(2)
-  const totalCost = boxesDecimal.times(costDecimal).toFixed(2)
+  // const totalRevenue = boxesDecimal.times(sellingPriceDecimal).toFixed(2)
+  // const totalCost = boxesDecimal.times(costDecimal).toFixed(2)
 
   const { data: sale, error } = await supabase
     .from('daily_sales')

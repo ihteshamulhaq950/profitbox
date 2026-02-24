@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { NextRequest, NextResponse } from "next/server";
 import { parseSalesCSV, generateSalesCSVTemplate } from "@/lib/csv-sales-parser";
-import { ParsedSalesRow, BulkSalesUploadResult } from "@/lib/types";
+// import { ParsedSalesRow, BulkSalesUploadResult } from "@/lib/types";
 
 export async function GET(request: NextRequest) {
   try {
