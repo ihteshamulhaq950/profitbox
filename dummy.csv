@@ -1,0 +1,11 @@
+user_id,sku,product_id,boxes_purchased,boxes_remaining,quantity_per_box,unit_per_box,cost_per_box,supplier_name,reorder_level,critical_level,status,batch_number
+8224593c-3c64-420f-8e7c-91fbc26ab2f7,COFFEE001,3ea93e55-3ece-4fa0-b811-5d6c48819d74,6,6,500,g,7500,Coffee Co,2,1,active,Coffee-4271
+8224593c-3c64-420f-8e7c-91fbc26ab2f7,FLOUR001,58780e98-93e2-487f-8187-e047aa0dcb32,10,10,50,kg,4200,Local Supplier,3,1,active,Flour-9182
+8224593c-3c64-420f-8e7c-91fbc26ab2f7,SUGAR-0001,68af5bef-04e3-42ff-a289-1850691d5684,18,18,50,kg,3500,,5,2,active,Sugar Bag-3564
+8224593c-3c64-420f-8e7c-91fbc26ab2f7,BUTTER001,6c31d4d2-1b85-4674-831f-dad4c01c421f,5,5,200,g,1200,Dairy Farm Ltd,2,1,active,Butter-6842
+8224593c-3c64-420f-8e7c-91fbc26ab2f7,SUGAR001,8ba511d0-7eda-4f19-9825-d062c108cb47,12,12,1,bag,3000,Local Supplier,4,2,active,Sugar-2503
+8224593c-3c64-420f-8e7c-91fbc26ab2f7,EGG001,ba242365-ac6e-4603-bac8-1be04989f311,20,20,12,dozen,2500,Dairy Farm Ltd,6,3,active,Eggs-1278
+8224593c-3c64-420f-8e7c-91fbc26ab2f7,TEA001,c06a87a7-e8ae-413f-8e2a-69587b98fecc,8,8,1000,g,6000,Tea Traders,2,1,active,Tea-4951
+8224593c-3c64-420f-8e7c-91fbc26ab2f7,RICE001,c3c6e8a9-8f2a-47a5-bf39-90b5206e6087,15,15,40,kg,3800,National Supplier,5,2,active,Rice-8204
+8224593c-3c64-420f-8e7c-91fbc26ab2f7,SALT001,dc79ad99-4c53-452e-8b12-08db892a9065,12,12,25,kg,1200,Local Supplier,4,2,active,Salt-7310
+8224593c-3c64-420f-8e7c-91fbc26ab2f7,FLOUR001,58780e98-93e2-487f-8187-e047aa0dcb32,5,5,50,kg,2000,Local Supplier,2,1,active,Flour-4823

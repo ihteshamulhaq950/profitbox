@@ -1,0 +1,11 @@
+product_name,sku,quantity_sold,unit_sold,sale_price,sale_date,payment_method
+Premium Arabica Coffee,SKU-Premium-2026-5739,25,kg,21250.00,2026-02-01,cash
+Organic Green Tea,SKU-Tea-2026-2841,15,kg,14250.00,2026-02-02,card
+Artisan Dark Chocolate,SKU-Chocolate-2026-7614,50,piece,22500.00,2026-02-03,transfer
+Mediterranean Olive Oil,SKU-Olive-2026-9203,10,liter,25000.00,2026-02-04,cash
+Pasta Perfetto,SKU-Pasta-2026-3758,100,kg,20000.00,2026-02-05,card
+Organic Honey,SKU-Honey-2026-4621,20,kg,24000.00,2026-02-06,transfer
+Gourmet Nuts Mix,SKU-Nuts-2026-8142,30,kg,25500.00,2026-02-07,cash
+Coconut Oil,SKU-Coconut-2026-5096,50,liter,22500.00,2026-02-08,card
+Quinoa Seeds,SKU-Quinoa-2026-1483,25,kg,23750.00,2026-02-09,transfer
+Sea Salt Premium,SKU-Salt-2026-6927,80,kg,12000.00,2026-02-10,cash

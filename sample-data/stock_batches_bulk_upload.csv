@@ -1,0 +1,16 @@
+sku,batch_number,boxes_purchased,boxes_remaining,quantity_per_box,unit_per_box,cost_per_box,supplier_name,reorder_level,critical_level
+SKU-Premium-2026-5739,BATCH-Premium-2026-1847,500,500,25,kg,350.00,Global Coffee Co.,50,20
+SKU-Premium-2026-5739,BATCH-Premium-2026-9402,300,300,25,kg,360.00,Global Coffee Co.,50,20
+SKU-Tea-2026-2841,BATCH-Tea-2026-5316,400,400,10,kg,200.00,Tea Masters Ltd.,40,15
+SKU-Tea-2026-2841,BATCH-Tea-2026-7890,250,250,10,kg,210.00,Tea Masters Ltd.,40,15
+SKU-Chocolate-2026-7614,BATCH-Chocolate-2026-3421,600,600,24,piece,250.00,Artisan Chocolatiers,60,25
+SKU-Chocolate-2026-7614,BATCH-Chocolate-2026-8765,400,400,24,piece,260.00,Artisan Chocolatiers,60,25
+SKU-Olive-2026-9203,BATCH-Olive-2026-2109,200,200,12,liter,450.00,Mediterranean Imports,30,10
+SKU-Olive-2026-9203,BATCH-Olive-2026-6543,150,150,12,liter,460.00,Mediterranean Imports,30,10
+SKU-Pasta-2026-3758,BATCH-Pasta-2026-4872,800,800,20,kg,140.00,Italian Pasta House,75,30
+SKU-Pasta-2026-3758,BATCH-Pasta-2026-1256,500,500,20,kg,145.00,Italian Pasta House,75,30
+SKU-Honey-2026-4621,BATCH-Honey-2026-7934,300,300,15,kg,350.00,Organic Honey Farms,25,10
+SKU-Nuts-2026-8142,BATCH-Nuts-2026-5617,250,250,10,kg,300.00,Nut Butter Makers,35,15
+SKU-Coconut-2026-5096,BATCH-Coconut-2026-8249,1000,1000,12,liter,180.00,Coconut Direct,100,40
+SKU-Quinoa-2026-1483,BATCH-Quinoa-2026-3108,180,180,25,kg,400.00,Quinoa Growers,20,8
+SKU-Salt-2026-6927,BATCH-Salt-2026-6472,500,500,50,kg,120.00,Salt Distributors,45,20

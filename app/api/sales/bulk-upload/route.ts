@@ -1,0 +1,126 @@
+import { createClient } from "@/lib/supabase/server";
+import { NextRequest, NextResponse } from "next/server";
+import { parseSalesCSV, generateSalesCSVTemplate } from "@/lib/csv-sales-parser";
+import { ParsedSalesRow, BulkSalesUploadResult } from "@/lib/types";
+
+export async function GET(request: NextRequest) {
+  try {
+    const template = generateSalesCSVTemplate();
+    return new Response(template, {
+      status: 200,
+      headers: {
+        "Content-Type": "text/csv",
+        "Content-Disposition": 'attachment; filename="sales_template.csv"',
+      },
+    });
+  } catch (error) {
+    console.error("Template generation error:", error);
+    return NextResponse.json(
+      { error: "Failed to generate template" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function POST(request: NextRequest) {
+  const supabase = await createClient();
+
+  // Verify authentication
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    return NextResponse.json(
+      { error: "Unauthorized" },
+      { status: 401 }
+    );
+  }
+
+  try {
+    // Get file from FormData
+    const formData = await request.formData();
+    const file = formData.get("file") as File;
+
+    if (!file) {
+      return NextResponse.json(
+        { error: "No file provided" },
+        { status: 400 }
+      );
+    }
+
+    // Validate file type
+    if (!file.name.endsWith(".csv")) {
+      return NextResponse.json(
+        { error: "Only CSV files are supported" },
+        { status: 400 }
+      );
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      return NextResponse.json(
+        { error: "File size must be less than 5MB" },
+        { status: 400 }
+      );
+    }
+
+    // Read file content
+    const csvContent = await file.text();
+
+    // Parse CSV
+    let parsedRows: ParsedSalesRow[];
+    try {
+      parsedRows = parseSalesCSV(csvContent);
+    } catch (parseError) {
+      return NextResponse.json(
+        {
+          error: "CSV parsing failed",
+          details: parseError instanceof Error ? parseError.message : "Unknown error",
+        },
+        { status: 400 }
+      );
+    }
+
+    // Call RPC function for bulk insert
+    const { data, error: rpcError } = await supabase.rpc(
+      "bulk_insert_sales",
+      {
+        data: parsedRows,
+      }
+    );
+
+    if (rpcError) {
+      console.error("RPC error:", rpcError);
+      return NextResponse.json(
+        {
+          error: "Failed to insert sales records",
+          details: rpcError.message,
+        },
+        { status: 400 }
+      );
+    }
+
+    // Return successful response
+    const result = data as any;
+    return NextResponse.json(
+      {
+        success: true,
+        inserted_count: result?.inserted_count || parsedRows.length,
+        total_rows: parsedRows.length,
+        message: result?.message || `Successfully inserted ${parsedRows.length} sales records`,
+      } as BulkSalesUploadResult,
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error("Upload error:", error);
+    return NextResponse.json(
+      {
+        error: "Upload failed",
+        details: error instanceof Error ? error.message : "Unknown error",
+      },
+      { status: 500 }
+    );
+  }
+}

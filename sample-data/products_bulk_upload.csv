@@ -1,0 +1,11 @@
+name,sku,description,base_unit,unit_type
+Premium Arabica Coffee,SKU-Premium-2026-5739,High-quality single-origin coffee beans,kg,weight
+Organic Green Tea,SKU-Tea-2026-2841,Loose leaf organic green tea,kg,weight
+Artisan Dark Chocolate,SKU-Chocolate-2026-7614,70% dark chocolate bars,piece,count
+Mediterranean Olive Oil,SKU-Olive-2026-9203,Extra virgin Italian olive oil,liter,weight
+Pasta Perfetto,SKU-Pasta-2026-3758,Traditional Italian pasta variety,kg,weight
+Organic Honey,SKU-Honey-2026-4621,Raw unfiltered honey,kg,weight
+Gourmet Nuts Mix,SKU-Nuts-2026-8142,Roasted mixed nuts assortment,kg,weight
+Coconut Oil,SKU-Coconut-2026-5096,Organic virgin coconut oil,liter,weight
+Quinoa Seeds,SKU-Quinoa-2026-1483,Organic white quinoa,kg,weight
+Sea Salt Premium,SKU-Salt-2026-6927,Large crystal sea salt,kg,weight

@@ -1,0 +1,360 @@
+-- =====================================================
+-- PROFITBOX - SUPABASE MIGRATIONS INDEX
+-- =====================================================
+-- Complete database setup using separate migration files
+-- Run these migrations in order for complete system setup
+-- =====================================================
+
+-- =====================================================
+-- MIGRATION EXECUTION GUIDE
+-- =====================================================
+--
+-- 1. Run migrations in sequential order:
+--    001_initial_schema.sql    → Creates all tables with RLS
+--    002_rpc_functions.sql     → Creates bulk operation functions
+--    003_views_and_helpers.sql → Creates reporting views
+--    004_storage_bucket.sql    → Sets up image storage
+--
+-- 2. Each migration is idempotent and can be re-run safely
+--
+-- 3. Total time: ~5-10 seconds for full setup
+--
+-- =====================================================
+-- FILE DESCRIPTIONS
+-- =====================================================
+
+-- 001_initial_schema.sql (275 lines)
+-- ══════════════════════════════════════════════════
+-- Creates core database schema:
+--
+-- Tables:
+--   • products
+--     - Master catalog of all products
+--     - Flexible units (weight-based or count-based)
+--     - SKU, pricing, and supplier info
+--
+--   • stock_batches  
+--     - Purchase records from suppliers
+--     - Box-level quantity tracking
+--     - Reorder/critical alert levels
+--     - Alert status calculation
+--
+--   • daily_sales
+--     - Sales transactions
+--     - Links to products and batches
+--     - Customer and notes fields
+--
+-- Row Level Security:
+--   • 12 RLS policies (4 per table)
+--   • INSERT, SELECT, UPDATE, DELETE per table
+--   • User isolation - users see only their data
+--
+-- Indexes:
+--   • 10 performance indexes
+--   • User + product/status/date queries optimized
+--
+-- Constraints:
+--   • Foreign keys with cascade delete
+--   • Data validation (positive, ranges, etc.)
+--   • Unique constraints (SKU per user)
+
+-- 002_rpc_functions.sql (190 lines)
+-- ══════════════════════════════════════════════════
+-- Creates RPC functions for bulk operations:
+--
+-- Function 1: bulk_insert_stock_batches(jsonb)
+--   Input: Array of batch objects with SKU
+--   • Validates all SKUs exist for current user
+--   • Calculates initial alert_status
+--   • Inserts all batches atomically
+--   • Returns: success, inserted_count, message
+--   Errors if any SKU invalid (all-or-nothing)
+--
+-- Function 2: bulk_insert_sales(jsonb)
+--   Input: Array of sale objects with product/batch IDs
+--   • Validates products and batches exist
+--   • Checks stock availability (all rows)
+--   • Inserts all sales atomically
+--   • Updates stock_batches (decrement boxes_remaining)
+--   • Recalculates alert_status for affected batches
+--   • Returns: success, inserted_count, message
+--   Errors if any validation fails (all-or-nothing)
+--
+-- Both functions:
+--   • Use SECURITY DEFINER (execute as superuser)
+--   • Include full validation before insert
+--   • Require authenticated user
+--   • Grant EXECUTE to authenticated role
+
+-- 003_views_and_helpers.sql (250 lines)
+-- ══════════════════════════════════════════════════
+-- Creates helper views for reporting and analytics:
+--
+-- View 1: product_inventory_view
+--   Shows: Total stock, units, and value per product
+--   Useful: Inventory dashboard, stock levels
+--
+-- View 2: sales_summary_view  
+--   Shows: Revenue, cost, profit per product
+--   Useful: Profitability analysis, metrics
+--
+-- View 3: alert_status_view
+--   Shows: Low stock batches with action required
+--   Useful: Inventory management, ordering
+--
+-- View 4: batch_performance_view
+--   Shows: Sales and profit per batch
+--   Useful: Understanding batch profitability
+--
+-- View 5: daily_sales_report_view
+--   Shows: Daily sales with margins and profit
+--   Useful: Sales tracking, reconciliation
+--
+-- View 6: inventory_valuation_view
+--   Shows: Inventory value for financial reporting
+--   Useful: Balance sheet, asset accounting
+--
+-- View 7: supplier_analysis_view
+--   Shows: Vendor performance and spending
+--   Useful: Vendor evaluation, negotiation
+--
+-- All views:
+--   • Include RLS (auth.uid() filter)
+--   • Ready for frontend dashboard
+--   • Support real-time analytics
+
+-- 004_storage_bucket.sql (70 lines)
+-- ══════════════════════════════════════════════════
+-- Sets up storage for product images:
+--
+-- Bucket: product-images
+--   • Public (anyone can view)
+--   • Folder structure: {user_id}/product-name.jpg
+--   • Linked to products.image_url column
+--
+-- Features:
+--   • User-isolated folders
+--   • Public URL generation
+--   • Delete and update support
+--
+-- RLS Policies:
+--   • Note: Configure in Supabase dashboard
+--   • Recommended policies included as comments
+--   • Path-based access control
+
+-- =====================================================
+-- SCHEMA OVERVIEW
+-- =====================================================
+--
+--  products
+--  ├─ id (PK)
+--  ├─ user_id (FK)
+--  ├─ sku (unique per user)
+--  ├─ name
+--  ├─ category
+--  ├─ unit_type (weight|count)
+--  ├─ base_unit (kg|box|etc)
+--  └─ ... (description, supplier, etc)
+--
+--  stock_batches
+--  ├─ id (PK)
+--  ├─ user_id (FK)
+--  ├─ product_id (FK) → products
+--  ├─ batch_number
+--  ├─ boxes_purchased
+--  ├─ boxes_remaining
+--  ├─ quantity_per_box
+--  ├─ unit_per_box
+--  ├─ cost_per_box
+--  ├─ reorder_level
+--  ├─ critical_level
+--  ├─ alert_status (healthy|warning|critical)
+--  ├─ status (active|depleted)
+--  └─ created_at
+--       ↓ (one-to-many)
+--
+--  daily_sales
+--  ├─ id (PK)
+--  ├─ user_id (FK)
+--  ├─ product_id (FK) → products
+--  ├─ batch_id (FK) → stock_batches
+--  ├─ boxes_sold
+--  ├─ selling_price_per_box
+--  ├─ customer_name
+--  ├─ notes
+--  └─ created_at
+--
+-- =====================================================
+-- DATA FLOW
+-- =====================================================
+--
+-- 1. CREATE PRODUCTS
+--    User uploads products CSV
+--    → Inserted into products table
+--
+-- 2. CREATE STOCK BATCHES
+--    User uploads batches CSV (SKU-based)
+--    → RPC bulk_insert_stock_batches() called
+--    → Validates all SKUs exist
+--    → Inserts batches (atomically)
+--    → Calculates initial alert_status
+--    → Rows linked to products
+--
+-- 3. RECORD SALES
+--    User uploads sales CSV (UUID-based)
+--    → RPC bulk_insert_sales() called
+--    → Validates products/batches/stock
+--    → Inserts sales (atomically)
+--    → Decrements boxes_remaining
+--    → Recalculates alert_status
+--    → Rows linked to batches
+--
+-- 4. VIEW ANALYTICS
+--    Frontend queries views
+--    → Views calculate aggregates
+--    → Dashboard displays metrics
+--    → Real-time updates via RLS
+--
+-- =====================================================
+-- SECURITY FEATURES
+-- =====================================================
+--
+-- Row Level Security (RLS):
+--   ✅ Enabled on all tables
+--   ✅ Users see only their data
+--   ✅ auth.uid() validation
+--   ✅ Cascading deletes (REFERENCES)
+--
+-- Function Security:
+--   ✅ SECURITY DEFINER (execute as creator)
+--   ✅ RESTRICT search_path
+--   ✅ Input validation before insert
+--   ✅ Atomic transactions (all-or-nothing)
+--
+-- Data Validation:
+--   ✅ Foreign key constraints
+--   ✅ CHECK constraints (positive, ranges)
+--   ✅ UNIQUE constraints (duplicates)
+--   ✅ NOT NULL where required
+--
+-- =====================================================
+-- PERFORMANCE OPTIMIZATIONS
+-- =====================================================
+--
+-- Indexes Created (10 total):
+--   • products(user_id)
+--   • products(user_id, is_active)
+--   • products(sku)
+--   • stock_batches(user_id, product_id)
+--   • stock_batches(status)
+--   • stock_batches(alert_status)
+--   • stock_batches(created_at)
+--   • daily_sales(user_id)
+--   • daily_sales(created_at)
+--   • daily_sales(batch_id)
+--
+-- Query Patterns Optimized:
+--   ✅ List products by user
+--   ✅ Find active/depleted batches
+--   ✅ Find low-stock alerts
+--   ✅ Sales by date range
+--   ✅ Product profitability
+--
+-- =====================================================
+-- MIGRATION CHECKLIST
+-- =====================================================
+--
+-- Before running migrations:
+--   □ Backup existing database
+--   □ Verify PostgreSQL version (12+)
+--   □ Check Supabase project is running
+--
+-- After running migrations:
+--   □ Verify all tables exist (001 complete)
+--   □ Test RPC functions (002 complete)
+--   □ Query views for data (003 complete)
+--   □ Configure storage policies (004 complete)
+--
+-- Testing migrations:
+--   □ Run 001: Check products, stock_batches, daily_sales exist
+--   □ Run 002: Test bulk_insert_stock_batches()
+--   □ Run 002: Test bulk_insert_sales()
+--   □ Run 003: Query all 7 views
+--   □ Run 004: Upload test image to bucket
+--
+-- =====================================================
+-- HELPFUL SQL QUERIES
+-- =====================================================
+
+-- Check all tables & columns
+SELECT table_name, column_name, data_type 
+FROM information_schema.columns 
+WHERE table_schema = 'public' 
+ORDER BY table_name, ordinal_position;
+
+-- Check all functions
+SELECT routine_name, routine_type, data_type
+FROM information_schema.routines 
+WHERE routine_schema = 'public'
+ORDER BY routine_name;
+
+-- Check all indexes
+SELECT indexname FROM pg_indexes 
+WHERE schemaname = 'public'
+ORDER BY indexname;
+
+-- Check RLS status
+SELECT tablename, rowsecurity 
+FROM pg_tables 
+WHERE schemaname = 'public'
+ORDER BY tablename;
+
+-- Check RLS policies
+SELECT schemaname, tablename, policyname, permissive, cmd 
+FROM pg_policies 
+WHERE schemaname = 'public'
+ORDER BY tablename, policyname;
+
+-- Check storage buckets
+SELECT * FROM storage.buckets;
+
+-- =====================================================
+-- NOTES
+-- =====================================================
+--
+-- Idempotency:
+--   • All CREATE statements check IF NOT EXISTS
+--   • DROP statements before CREATE (safe for re-runs)
+--   • Same data inserted multiple times → no duplicates
+--
+-- Atomic Operations:
+--   • Transactions either succeed fully or fail completely
+--   • No partial inserts
+--   • No orphaned records
+--
+-- Performance:
+--   • Bulk operations use set-based JSON processing
+--   • Single UPDATE statement per batch (not per row)
+--   • Indexes prevent sequential scans
+--
+-- Expandability:
+--   • Easy to add new views
+--   • Easy to add new RPC functions
+--   • Easy to add new tables
+--   • Follows Supabase best practices
+--
+-- =====================================================
+-- COMPLETION STATUS ✅
+-- =====================================================
+-- These 4 migration files provide:
+--   ✅ Complete schema (3 tables)
+--   ✅ Row Level Security (12 policies)
+--   ✅ Performance indexes (10 indexes)
+--   ✅ RPC functions (2 functions)
+--   ✅ Reporting views (7 views)
+--   ✅ Storage bucket (1 bucket)
+--
+-- Total components: 25+
+-- Lines of SQL: 800+
+-- Ready for production: YES ✅
+-- =====================================================
