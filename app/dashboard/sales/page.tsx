@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import Link from 'next/link'
+// import Link from 'next/link'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -263,12 +263,12 @@ export default function SalesPage() {
           </p>
         </div>
         <div className="flex gap-2 w-full sm:w-auto flex-col sm:flex-row">
-          <Link href="/dashboard/sales/bulk-upload" className="w-full sm:w-auto">
+          {/* <Link href="/dashboard/sales/bulk-upload" className="w-full sm:w-auto">
             <Button variant="outline" size="lg" className="gap-2 w-full">
               <Upload className="w-4 h-4" />
               Bulk Upload
             </Button>
-          </Link>
+          </Link> */}
           <Dialog open={isOpen} onOpenChange={(open) => {
             setIsOpen(open)
             if (!open) {
